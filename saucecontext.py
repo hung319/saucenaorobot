@@ -97,7 +97,7 @@ class SauceContext(CallbackContext[ExtBot, dict, dict, dict]):
         for result in sauce_results:
             if float(result["header"]["similarity"]) < min_similarity:
                 continue
-            for url in result["data"]["ext_urls"] + [result["data"].get("source")]:
+            for url in result["data"].get("ext_urls", []) + [result["data"].get("source")]:
                 if url:
                     results.append(
                         (
