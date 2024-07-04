@@ -13,6 +13,7 @@ from telegram.error import (
 )
 import httpx
 import asyncio
+import re
 
 def chunks(lst: list, n: int):
     for i in range(0, len(lst), n):
@@ -98,7 +99,7 @@ class SauceContext(CallbackContext[ExtBot, dict, dict, dict]):
             if float(result["header"]["similarity"]) < min_similarity:
                 continue
             for url in result["data"].get("ext_urls", []) + [result["data"].get("source")]:
-                if url:
+                if url and re.match(r"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)", url):
                     results.append(
                         (
                             SauceContext.get_website_name(url) + " - " + result["header"]["similarity"] + "%",
