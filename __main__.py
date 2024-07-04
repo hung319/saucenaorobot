@@ -8,7 +8,11 @@ from telegram.ext import (
     CommandHandler,
     ContextTypes,
     PicklePersistence,
+    MessageHandler,
+    filters,
 )
+
+from saucecontext import SauceContext
 
 from os import getenv
 
@@ -30,10 +34,40 @@ logger = logging.getLogger(__name__)
 TOKEN = getenv("TOKEN")
 
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def start(update: Update, context: SauceContext):
     await update.effective_message.reply_text(
         "Start"
     )
+
+async def photo_handler(update: Update, context: SauceContext):
+    file = await context.bot.get_file(update.effective_message.photo[-1].file_id)
+    await context.get_sauce(
+        file.file_path,
+        await update.effective_message.reply_text(
+            "Searching for sauce...",
+            do_quote=True,
+            reply_markup=context.build_search_keyboard(file.file_path)
+        )
+    )
+
+async def video_handler(update: Update, context: SauceContext):
+    file = await context.bot.get_file(update.effective_message.video.thumbnail.file_id)
+
+    await context.get_sauce(
+        file.file_path,
+        await update.effective_message.reply_text(
+            "Searching for sauce...",
+            do_quote=True,
+            reply_markup=context.build_search_keyboard(file.file_path)
+        )
+    )
+
+async def api_key_command(update: Update, context: SauceContext):
+    if not context.args:
+        await update.effective_message.reply_text("Syntax:\n/api_key <your_api_key>\n\nGet yours at https://saucenao.com/user.php?page=search-api after logging in")
+        return
+    context.api_key = context.args[0]
+    await update.effective_message.reply_text("Api key set")
 
 
 def main():
@@ -42,11 +76,15 @@ def main():
         .builder()
         .token(TOKEN)
         .persistence(PicklePersistence("persistence.pickle"))
+        .context_types(ContextTypes(SauceContext))
         .concurrent_updates(True)
         .build()
     )
 
     application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("api_key", api_key_command))
+    application.add_handler(MessageHandler(filters.PHOTO, photo_handler))
+    application.add_handler(MessageHandler(filters.VIDEO, video_handler))
 
     application.run_polling(allowed_updates=Update.ALL_TYPES)
 
