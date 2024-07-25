@@ -41,24 +41,36 @@ async def start(update: Update, context: SauceContext):
 
 async def photo_handler(update: Update, context: SauceContext):
     file = await context.bot.get_file(update.effective_message.photo[-1].file_id)
-    await context.get_sauce(
-        file.file_path,
-        await update.effective_message.reply_text(
-            "Searching for sauce...",
-            do_quote=True,
-            reply_markup=context.build_search_keyboard(file.file_path)
-        )
-    )
+    await send_sauce(update, context, file.file_path)
+
 
 async def video_handler(update: Update, context: SauceContext):
     file = await context.bot.get_file(update.effective_message.video.thumbnail.file_id)
+    await send_sauce(update, context, file.file_path)
 
+async def gif_handler(update: Update, context: SauceContext):
+    if update.effective_message.animation:
+        file = await context.bot.get_file(update.effective_message.animation.thumbnail.file_id)
+        await send_sauce(update, context, file.file_path)
+    else:
+        update.effective_message.reply_text("Unsupported")
+
+async def sticker_handler(update: Update, context: SauceContext):
+    file = await context.bot.get_file(update.effective_message.sticker.file_id)
+    await send_sauce(update, context, file.file_path)
+
+async def animated_sticker_handler(update: Update, context: SauceContext):
+    file = await context.bot.get_file(update.effective_message.sticker.thumbnail.file_id)
+    await send_sauce(update, context, file.file_path)
+
+
+async def send_sauce(update: Update, context: SauceContext, file_path: str):
     await context.get_sauce(
-        file.file_path,
+        file_path,
         await update.effective_message.reply_text(
             "Searching for sauce...",
             do_quote=True,
-            reply_markup=context.build_search_keyboard(file.file_path)
+            reply_markup=context.build_search_keyboard(file_path)
         )
     )
 
@@ -85,6 +97,9 @@ def main():
     application.add_handler(CommandHandler("api_key", api_key_command))
     application.add_handler(MessageHandler(filters.PHOTO, photo_handler))
     application.add_handler(MessageHandler(filters.VIDEO, video_handler))
+    application.add_handler(MessageHandler(filters.ANIMATION, gif_handler))
+    application.add_handler(MessageHandler(filters.Sticker.STATIC, sticker_handler))
+    application.add_handler(MessageHandler(filters.Sticker.ANIMATED | filters.Sticker.VIDEO, animated_sticker_handler))
 
     application.run_polling(allowed_updates=Update.ALL_TYPES)
 
