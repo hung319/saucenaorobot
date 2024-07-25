@@ -34,7 +34,7 @@ class SauceContext(CallbackContext[ExtBot, dict, dict, dict]):
         ("anilist", "AniList"),
         ("artstation", "ArtStation"),
         ("twitter", "Twitter"),
-        ("x", "Twitter"),
+        ("x.com", "Twitter"),
         ("nijie.info", "Nijie"),
         ("pawoo.net", "Pawoo"),
         ("seiga.nicovideo.jp", "Seiga Nicovideo"),
