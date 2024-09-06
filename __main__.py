@@ -31,7 +31,7 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 
 logger = logging.getLogger(__name__)
 
-TOKEN = getenv("TOKEN")
+TOKEN = getenv("6762432858:AAHhe8Ht9Am4-TIQNNMRC3DGUt6jvEOCcOA")
 
 
 async def start(update: Update, context: SauceContext):
