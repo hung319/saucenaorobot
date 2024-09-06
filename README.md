@@ -1,3 +1,3 @@
 ```sh
-gh repo clone hung319/saucenaorobot && bash s.sh
+gh repo clone hung319/saucenaorobot && cd saucenaorobot && bash s.sh
 ```
